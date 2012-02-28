@@ -1,0 +1,8 @@
+p0rtalSnake is a game of snake that includes portals as an additional way of navigation around the map.
+
+Controls:
+	*arrow keys - control the direction of the snake
+	*w - toggle wrapping around the map edges
+	*f - toggle flipping
+	*s - toggle shadow
+	*space - flip the snake (tail becomes head and vice-versa)
