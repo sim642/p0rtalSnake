@@ -63,6 +63,7 @@ int main()
     sf::Vector2i sizei = sf::Vector2i(window.getSize().x, window.getSize().y) / 20;
     sf::Vector2f sizef(window.getSize().x / sizei.x, window.getSize().y / sizei.y);
 
+    // initialize resources
     sf::SoundBuffer foodBuffer, hurtBuffer, portalBuffer, wrapBuffer, flipBuffer;
     foodBuffer.loadFromFile("res/food.wav");
     hurtBuffer.loadFromFile("res/hurt.wav");
@@ -86,6 +87,7 @@ int main()
     maxScoreText.setColor(sf::Color(255, 255, 255, 196));
     maxScoreText.setPosition(sf::Vector2f(25.f, 55.f));
 
+    // load score if found
     unsigned int maxScore;
     {
         ifstream fin("res/score.dat");
@@ -95,6 +97,7 @@ int main()
             maxScore = 0;
     }
 
+    // initialize snake
     list<sf::Vector2i> snake;
     snake.push_back(sf::Vector2i(10, 10));
     snake.push_back(sf::Vector2i(10, 11));
@@ -106,6 +109,7 @@ int main()
     list<sf::Vector2i> foods;
     sf::Clock foodClock;
 
+    // initialize walls
     list<sf::Vector2i> walls;
     for (int i = 0; i < (sizei.x * sizei.y * 0.01); i++)
     {
@@ -115,10 +119,11 @@ int main()
             pos.x = rand() % sizei.x;
             pos.y = rand() % sizei.y;
         }
-        while ((find(snake.begin(), snake.end(), pos) != snake.end()) || (find(walls.begin(), walls.end(), pos) != walls.end()));
+        while ((find(snake.begin(), snake.end(), pos) != snake.end()) || (find(walls.begin(), walls.end(), pos) != walls.end())); // find free position
         walls.push_back(pos);
     }
 
+    // initialize portals
     list<Portal> portals;
     for (int i = 0; i < 3; i++)
     {
@@ -128,20 +133,21 @@ int main()
             pos1.x = rand() % sizei.x;
             pos1.y = rand() % sizei.y;
         }
-        while ((find(snake.begin(), snake.end(), pos1) != snake.end()) || (find(walls.begin(), walls.end(), pos1) != walls.end()) || (find_if(portals.begin(), portals.end(), PortalPos(pos1)) != portals.end()));
+        while ((find(snake.begin(), snake.end(), pos1) != snake.end()) || (find(walls.begin(), walls.end(), pos1) != walls.end()) || (find_if(portals.begin(), portals.end(), PortalPos(pos1)) != portals.end())); // find free position
 
         do
         {
             pos2.x = rand() % sizei.x;
             pos2.y = rand() % sizei.y;
         }
-        while ((find(snake.begin(), snake.end(), pos2) != snake.end()) || (find(walls.begin(), walls.end(), pos2) != walls.end()) || (find_if(portals.begin(), portals.end(), PortalPos(pos2)) != portals.end()));
+        while ((find(snake.begin(), snake.end(), pos2) != snake.end()) || (find(walls.begin(), walls.end(), pos2) != walls.end()) || (find_if(portals.begin(), portals.end(), PortalPos(pos2)) != portals.end())); // find free position
 
         sf::Color color(rand() % 256, rand() % 256, rand() % 256);
 
         portals.push_back(Portal{pos1, pos2, color});
     }
 
+    // main loop
     while (window.isOpen())
     {
         sf::Event e;
@@ -215,6 +221,7 @@ int main()
             }
         }
 
+        // spawn food
         if (foodClock.getElapsedTime().asSeconds() >= 2)
         {
             for (int i = 0; i < sizei.x * sizei.y; i++)
@@ -229,6 +236,7 @@ int main()
             foodClock.restart();
         }
 
+        // move snake
         if (moveClock.getElapsedTime().asMilliseconds() >= (450 / sqrt(snake.size())))
         {
             sf::Vector2i head = snake.front();
@@ -363,6 +371,7 @@ int main()
         rect.setSize(sizef - sf::Vector2f(2.f, 2.f));
         rect.setOrigin(sf::Vector2f(-1.f, -1.f));
 
+        // draw background
         rect.setFillColor(sf::Color(64, 64, 64));
         for (int y = 0; y < sizei.y; y++)
         {
@@ -373,6 +382,7 @@ int main()
             }
         }
 
+        // draw walls
         rect.setFillColor(sf::Color(32, 32, 32));
         for (list<sf::Vector2i>::iterator it = walls.begin(); it != walls.end(); ++it)
         {
@@ -381,6 +391,7 @@ int main()
             window.draw(rect);
         }
 
+        // draw food
         rect.setFillColor(sf::Color::Green);
         for (list<sf::Vector2i>::iterator it = foods.begin(); it != foods.end(); ++it)
         {
@@ -389,6 +400,7 @@ int main()
             window.draw(rect);
         }
 
+        // draw snake
         for (list<sf::Vector2i>::iterator it = snake.begin(); it != snake.end(); ++it)
         {
             sf::Vector2i &pos = *it;
@@ -403,6 +415,7 @@ int main()
             window.draw(rect);
         }
 
+        // draw portals
         for (list<Portal>::iterator it = portals.begin(); it != portals.end(); ++it)
         {
             rect.setFillColor(it->color);
@@ -414,6 +427,7 @@ int main()
             window.draw(rect);
         }
 
+        // shadow field
         if (shadow)
         {
             rect.setFillColor(sf::Color::Black);
@@ -437,6 +451,7 @@ int main()
         window.display();
     }
 
+    // save score
     {
         ofstream fout("res/score.dat");
         fout << (maxScore ^ magicKey);
