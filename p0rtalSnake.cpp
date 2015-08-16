@@ -59,31 +59,32 @@ int main()
     srand(time(NULL));
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "p0rtalSnake");
-    window.SetFramerateLimit(60);
-    sf::Vector2i sizei = sf::Vector2i(window.GetWidth(), window.GetHeight()) / 20;
-    sf::Vector2f sizef(window.GetWidth() / sizei.x, window.GetHeight() / sizei.y);
+    window.setFramerateLimit(60);
+    sf::Vector2i sizei = sf::Vector2i(window.getSize().x, window.getSize().y) / 20;
+    sf::Vector2f sizef(window.getSize().x / sizei.x, window.getSize().y / sizei.y);
 
     sf::SoundBuffer foodBuffer, hurtBuffer, portalBuffer, wrapBuffer, flipBuffer;
-    foodBuffer.LoadFromFile("res/food.wav");
-    hurtBuffer.LoadFromFile("res/hurt.wav");
-    portalBuffer.LoadFromFile("res/portal.wav");
-    wrapBuffer.LoadFromFile("res/wrap.wav");
-    flipBuffer.LoadFromFile("res/flip.wav");
+    foodBuffer.loadFromFile("res/food.wav");
+    hurtBuffer.loadFromFile("res/hurt.wav");
+    portalBuffer.loadFromFile("res/portal.wav");
+    wrapBuffer.loadFromFile("res/wrap.wav");
+    flipBuffer.loadFromFile("res/flip.wav");
     sf::Sound foodSound(foodBuffer), hurtSound(hurtBuffer), portalSound(portalBuffer), wrapSound(wrapBuffer), flipSound(flipBuffer);
 
-    sf::Font font = sf::Font::GetDefaultFont();
+    sf::Font font;
+    font.loadFromFile("res/font.ttf");
 
     sf::Text scoreText;
-    scoreText.SetFont(font);
-    scoreText.SetCharacterSize(30);
-    scoreText.SetColor(sf::Color(255, 255, 255, 196));
-    scoreText.SetPosition(sf::Vector2f(20.f, 20.f));
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(30);
+    scoreText.setColor(sf::Color(255, 255, 255, 196));
+    scoreText.setPosition(sf::Vector2f(20.f, 20.f));
 
     sf::Text maxScoreText;
-    maxScoreText.SetFont(font);
-    maxScoreText.SetCharacterSize(15);
-    maxScoreText.SetColor(sf::Color(255, 255, 255, 196));
-    maxScoreText.SetPosition(sf::Vector2f(25.f, 55.f));
+    maxScoreText.setFont(font);
+    maxScoreText.setCharacterSize(15);
+    maxScoreText.setColor(sf::Color(255, 255, 255, 196));
+    maxScoreText.setPosition(sf::Vector2f(25.f, 55.f));
 
     unsigned int maxScore;
     {
@@ -141,19 +142,19 @@ int main()
         portals.push_back(Portal{pos1, pos2, color});
     }
 
-    while (window.IsOpen())
+    while (window.isOpen())
     {
         sf::Event e;
-        while (window.PollEvent(e))
+        while (window.pollEvent(e))
         {
-            if (e.Type == sf::Event::Closed)
+            if (e.type == sf::Event::Closed)
             {
-                window.Close();
+                window.close();
             }
-            else if (e.Type == sf::Event::KeyPressed)
+            else if (e.type == sf::Event::KeyPressed)
             {
                 const sf::Vector2i &head = snake.front();
-                switch (e.Key.Code)
+                switch (e.key.code)
                 {
                     case sf::Keyboard::Up:
                         if (find(snake.begin(), snake.end(), head + sf::Vector2i(0, -1)) == snake.end())
@@ -195,7 +196,7 @@ int main()
                             else
                                 throw "Shit happened!";
 
-                            flipSound.Play();
+                            flipSound.play();
                         }
                         break;
                     }
@@ -214,7 +215,7 @@ int main()
             }
         }
 
-        if (foodClock.GetElapsedTime().AsSeconds() >= 2)
+        if (foodClock.getElapsedTime().asSeconds() >= 2)
         {
             for (int i = 0; i < sizei.x * sizei.y; i++)
             {
@@ -225,10 +226,10 @@ int main()
                     break;
                 }
             }
-            foodClock.Restart();
+            foodClock.restart();
         }
 
-        if (moveClock.GetElapsedTime().AsMilliseconds() >= (450 / sqrt(snake.size())))
+        if (moveClock.getElapsedTime().asMilliseconds() >= (450 / sqrt(snake.size())))
         {
             sf::Vector2i head = snake.front();
             switch (dir)
@@ -252,23 +253,23 @@ int main()
                 if (head.x < 0)
                 {
                     head.x += sizei.x;
-                    wrapSound.Play();
+                    wrapSound.play();
                 }
                 else if (head.x >= sizei.x)
                 {
                     head.x %= sizei.x;
-                    wrapSound.Play();
+                    wrapSound.play();
                 }
 
                 if (head.y < 0)
                 {
                     head.y += sizei.y;
-                    wrapSound.Play();
+                    wrapSound.play();
                 }
                 else if (head.y >= sizei.y)
                 {
                     head.y %= sizei.y;
-                    wrapSound.Play();
+                    wrapSound.play();
                 }
             }
 
@@ -317,7 +318,7 @@ int main()
                             head.y %= sizei.y;
                     }
 
-                    portalSound.Play();
+                    portalSound.play();
                     break;
                 }
             }
@@ -331,7 +332,7 @@ int main()
                 if (foodIt != foods.end())
                 {
                     foods.erase(foodIt);
-                    foodSound.Play();
+                    foodSound.play();
                 }
                 else
                     snake.pop_back();
@@ -342,98 +343,98 @@ int main()
                 if (snake.size() > 2)
                 {
                     snake.pop_back();
-                    hurtSound.Play();
+                    hurtSound.play();
                 }
             }
 
-            moveClock.Restart();
+            moveClock.restart();
         }
 
         if (snake.size() > maxScore)
             maxScore = snake.size();
 
-        scoreText.SetString(toStr(snake.size()));
-        maxScoreText.SetString(toStr(maxScore));
+        scoreText.setString(toStr(snake.size()));
+        maxScoreText.setString(toStr(maxScore));
 
 
-        window.Clear();
+        window.clear();
 
         sf::RectangleShape rect;
-        rect.SetSize(sizef - sf::Vector2f(2.f, 2.f));
-        rect.SetOrigin(sf::Vector2f(-1.f, -1.f));
+        rect.setSize(sizef - sf::Vector2f(2.f, 2.f));
+        rect.setOrigin(sf::Vector2f(-1.f, -1.f));
 
-        rect.SetFillColor(sf::Color(64, 64, 64));
+        rect.setFillColor(sf::Color(64, 64, 64));
         for (int y = 0; y < sizei.y; y++)
         {
             for (int x = 0; x < sizei.x; x++)
             {
-                rect.SetPosition(sf::Vector2f(x * sizef.x, y * sizef.y));
-                window.Draw(rect);
+                rect.setPosition(sf::Vector2f(x * sizef.x, y * sizef.y));
+                window.draw(rect);
             }
         }
 
-        rect.SetFillColor(sf::Color(32, 32, 32));
+        rect.setFillColor(sf::Color(32, 32, 32));
         for (list<sf::Vector2i>::iterator it = walls.begin(); it != walls.end(); ++it)
         {
             sf::Vector2i &pos = *it;
-            rect.SetPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
-            window.Draw(rect);
+            rect.setPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
+            window.draw(rect);
         }
 
-        rect.SetFillColor(sf::Color::Green);
+        rect.setFillColor(sf::Color::Green);
         for (list<sf::Vector2i>::iterator it = foods.begin(); it != foods.end(); ++it)
         {
             sf::Vector2i &pos = *it;
-            rect.SetPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
-            window.Draw(rect);
+            rect.setPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
+            window.draw(rect);
         }
 
         for (list<sf::Vector2i>::iterator it = snake.begin(); it != snake.end(); ++it)
         {
             sf::Vector2i &pos = *it;
             if (it == snake.begin())
-                rect.SetFillColor(sf::Color::Red);
+                rect.setFillColor(sf::Color::Red);
             else
             {
                 int mix = max(255 - distance(snake.begin(), it), 32);
-                rect.SetFillColor(sf::Color(mix, mix, 0));
+                rect.setFillColor(sf::Color(mix, mix, 0));
             }
-            rect.SetPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
-            window.Draw(rect);
+            rect.setPosition(sf::Vector2f(pos.x * sizef.x, pos.y * sizef.y));
+            window.draw(rect);
         }
 
         for (list<Portal>::iterator it = portals.begin(); it != portals.end(); ++it)
         {
-            rect.SetFillColor(it->color);
+            rect.setFillColor(it->color);
 
-            rect.SetPosition(sf::Vector2f(it->pos1.x * sizef.x, it->pos1.y * sizef.y));
-            window.Draw(rect);
+            rect.setPosition(sf::Vector2f(it->pos1.x * sizef.x, it->pos1.y * sizef.y));
+            window.draw(rect);
 
-            rect.SetPosition(sf::Vector2f(it->pos2.x * sizef.x, it->pos2.y * sizef.y));
-            window.Draw(rect);
+            rect.setPosition(sf::Vector2f(it->pos2.x * sizef.x, it->pos2.y * sizef.y));
+            window.draw(rect);
         }
 
         if (shadow)
         {
-            rect.SetFillColor(sf::Color::Black);
+            rect.setFillColor(sf::Color::Black);
             for (int y = 0; y < sizei.y; y++)
             {
                 for (int x = 0; x < sizei.x; x++)
                 {
                     if ((pow(x - snake.front().x, 2) + pow(y - snake.front().y, 2)) > pow(10, 2))
                     {
-                        rect.SetPosition(sf::Vector2f(x * sizef.x, y * sizef.y));
-                        window.Draw(rect);
+                        rect.setPosition(sf::Vector2f(x * sizef.x, y * sizef.y));
+                        window.draw(rect);
                     }
 
                 }
             }
         }
 
-        window.Draw(scoreText);
-        window.Draw(maxScoreText);
+        window.draw(scoreText);
+        window.draw(maxScoreText);
 
-        window.Display();
+        window.display();
     }
 
     {
